@@ -1,18 +1,22 @@
 package uzimaru.qreader;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -24,36 +28,58 @@ import org.w3c.dom.Text;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
+public class MainActivity extends AppCompatActivity {
+
+    static final int REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            permissionProc();
-        }
+        // パーミッションチェック
+        final int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
 
-        new IntentIntegrator(this).initiateScan();
+        // ボタンのイベント設定
+        Button btn = (Button) findViewById(R.id.reading_button);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (RuntimePermissionUnits.hasSelfPermissions(MainActivity.this, Manifest.permission.CAMERA)) {
+                    readingActivity();
+                } else {
+                    requestPermissions(new String[] { Manifest.permission.CAMERA }, REQUEST_CODE);
+                }
+            }
+        });
+
     }
 
-    private void permissionProc() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[] {Manifest.permission.CAMERA}, 0);
-        }
+    private void readingActivity() {
+        Intent intent = new Intent(this, ReadingActivity.class);
+        startActivity(intent);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 0:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.i("Permission", "permitted");
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResult) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResult);
+
+        if (requestCode == requestCode && grantResult.length > 0) {
+            if (!RuntimePermissionUnits.checkGrantResults(grantResult)) {
+                if (RuntimePermissionUnits.shouldShowRequestPermissionRational(MainActivity.this, Manifest.permission.CAMERA)) {
+                    Toast.makeText(MainActivity.this, "権限がないです", Toast.LENGTH_SHORT).show();
                 } else {
-                    Log.i("Permission", "not permitted");
+                    new Handler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            RuntimePermissionUnits.showAlertDialog(getSupportFragmentManager(), "カメラ");
+                        }
+                    });
                 }
-                break;
+            } else {
+                readingActivity();
+            }
         }
     }
+
 }
