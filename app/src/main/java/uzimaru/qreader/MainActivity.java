@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -12,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -37,12 +39,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // パーミッションチェック
-        final int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.start_toolbar);
+        toolbar.setTitle(R.string.app_name);
+        toolbar.setTitleTextColor(Color.WHITE);
 
         // ボタンのイベント設定
-        Button btn = (Button) findViewById(R.id.reading_button);
-        btn.setOnClickListener(new View.OnClickListener() {
+        Button readBtn = (Button) findViewById(R.id.reading_button);
+        readBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (RuntimePermissionUnits.hasSelfPermissions(MainActivity.this, Manifest.permission.CAMERA)) {
@@ -50,6 +53,15 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     requestPermissions(new String[] { Manifest.permission.CAMERA }, REQUEST_CODE);
                 }
+            }
+        });
+
+        Button createBtn = (Button) findViewById(R.id.create_button);
+        createBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplication(), CreateActivity.class);
+                startActivity(intent);
             }
         });
 

@@ -22,6 +22,10 @@
         </activity>
         <activity android:name=".ResultActivity">
         </activity>
+        <activity android:name=".CreateActivity">
+        </activity>
+        <activity android:name=".QRViewActivity">
+        </activity>
     </application>
 
 </manifest>

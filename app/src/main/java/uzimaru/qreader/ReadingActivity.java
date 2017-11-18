@@ -1,8 +1,11 @@
 package uzimaru.qreader;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
 import com.google.zxing.ResultPoint;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
@@ -18,6 +21,17 @@ public class ReadingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reading);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.reading_toolbar);
+        toolbar.setTitle(R.string.app_name);
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
 
         compoundBarcodeView = (CompoundBarcodeView) findViewById(R.id.qr_reader);
         compoundBarcodeView.decodeSingle(new BarcodeCallback() {
